@@ -76,3 +76,40 @@ exports.login = async (req, res) => {
     res.status(400).json({ msg: "Login error", error });
   }
 };
+
+// UPDATE profile (client connecté)
+exports.updateProfile = async (req, res) => {
+  try {
+    const { motDePasse, role, ...rest } = req.body; // empêcher de changer role ou password ici
+
+    const updated = await User.findByIdAndUpdate(
+      req.user._id,
+      rest,
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({ msg: 'Profil mis à jour', user: updated });
+  } catch (error) {
+    res.status(400).json({ msg: 'Erreur lors de la mise à jour', error });
+  }
+};
+
+// DELETE user (admin only)
+exports.deleteUser = async (req, res) => {
+  try {
+    const deleted = await User.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ msg: 'Utilisateur non trouvé' });
+    res.status(200).json({ msg: 'Utilisateur supprimé avec succès' });
+  } catch (error) {
+    res.status(500).json({ msg: 'Erreur serveur', error });
+  }
+};
+// DELETE son propre compte (client connecté)
+exports.deleteMyAccount = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.user._id);
+    res.status(200).json({ msg: 'Compte supprimé avec succès' });
+  } catch (error) {
+    res.status(500).json({ msg: 'Erreur serveur', error });
+  }
+};

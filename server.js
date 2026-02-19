@@ -20,6 +20,8 @@ app.use(express.json());
 //middleware routes
 
 app.use('/api/user', require('./routes/user'));
+app.use('/api/destination', require('./routes/destination'));
+app.use('/api/voyage', require('./routes/voyage'));
 
 // 3- create PORT
 const PORT = process.env.PORT;
