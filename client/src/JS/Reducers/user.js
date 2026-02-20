@@ -5,7 +5,10 @@ import {
      FAIL_USER,
       LOAD_USER,
        LOGOUT_USER,
-        SUCC_USER } from "../ActionsType/user";
+        SUCC_USER ,
+        UPDATE_USER,   
+    DELETE_USER
+} from "../ActionsType/user";
 
 
 
@@ -13,8 +16,8 @@ import {
 // 2 initstate 
 const initState = {
     user: null,
-    loadUser: false,
-    errors:[],
+    loadUser: !!localStorage.getItem("token"), 
+    errors: [],
     isAuth: false,
 };
 
@@ -32,6 +35,11 @@ const userReducer = (state = initState, { type, payload }) => {
             return { ...state,loadUser: false , errors: payload };
         case CURRENT_USER:    
             return { ...state, loadUser: false, user: payload, isAuth: true };
+        case UPDATE_USER:
+            return { ...state, loadUser: false, user: payload }; 
+        case DELETE_USER:
+            localStorage.removeItem("token");
+            return { user: null, loadUser: false, errors: [], isAuth: false }; 
         case LOGOUT_USER:
                 localStorage.removeItem("token");
             return { user: null, loadUser: false, errors: [], isAuth: false };

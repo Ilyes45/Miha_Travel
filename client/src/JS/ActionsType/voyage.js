@@ -1,0 +1,7 @@
+export const LOAD_VOYAGE = "LOAD_VOYAGE";
+export const FAIL_VOYAGE = "FAIL_VOYAGE";
+export const GET_ALL_VOYAGES = "GET_ALL_VOYAGES";
+export const GET_ONE_VOYAGE = "GET_ONE_VOYAGE";
+export const CREATE_VOYAGE = "CREATE_VOYAGE";
+export const UPDATE_VOYAGE = "UPDATE_VOYAGE";
+export const DELETE_VOYAGE = "DELETE_VOYAGE";

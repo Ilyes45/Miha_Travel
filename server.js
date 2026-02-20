@@ -18,6 +18,7 @@ connectDB();
 app.use(express.json());
 
 //middleware routes
+app.use('/api/upload', require('./routes/upload'));
 
 app.use('/api/user', require('./routes/user'));
 app.use('/api/destination', require('./routes/destination'));
