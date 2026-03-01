@@ -1,52 +1,46 @@
-.profile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 50px;
-  min-height: 100vh;
-  background-color: #f1f3f5;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* ─── HEADER ─────────────────────────────────────────────── */
+.profile-header {
+  background: linear-gradient(135deg, #1a6b8a, #0d3b4f);
+  color: white;
+  padding: 50px 0;
+  text-align: center;
 }
 
-.profile h1 {
-  margin-bottom: 30px;
-  font-weight: bold;
-  font-size: 2.5rem;
-  color: #343a40;
-}
-
-.profile-card {
-  display: flex;
-  align-items: center;
-  background-color: white;
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  padding: 20px 30px;
-  width: 500px;
-  gap: 20px;
-}
-
-.profile-card img {
-  width: 130px;
-  height: 130px;
-  object-fit: cover;
+.profile-avatar {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  border: 3px solid #dee2e6;
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 auto;
+  border: 3px solid rgba(255, 255, 255, 0.5);
 }
 
-.profile-card .list-group {
-  flex: 1;
-  padding-left: 10px;
+/* ─── EMPTY STATE ────────────────────────────────────────── */
+.profile-empty {
+  text-align: center;
+  padding: 60px 0;
 }
 
-.profile-card .list-group-item {
-  border: none;
-  padding: 10px 0;
-  font-size: 1.1rem;
-  color: #495057;
-  border-bottom: 1px solid #e9ecef;
+/* ─── CARD RESERVATION ───────────────────────────────────── */
+.profile-resa-card {
+  border: 1px solid #dee2e6;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s;
 }
 
-.profile-card .list-group-item:last-child {
-  border-bottom: none;
+.profile-resa-card:hover {
+  transform: translateY(-3px);
+}
+
+/* ─── INFO BOX ───────────────────────────────────────────── */
+.profile-resa-info {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px 12px;
 }

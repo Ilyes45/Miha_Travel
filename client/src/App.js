@@ -4,7 +4,7 @@ import './App.css';
 import Login from './Pages/Login/Login';
 import Register from './Pages/Register/Register';
 import Error from './Pages/Error';
-import NavBar from './Components/NavBar';
+import NavBar from './Components//NavBar/NavBar';
 import Profile from './Pages/Profile/Profile';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
@@ -13,6 +13,8 @@ import Voyages from './Pages/Voyages/Voyages';
 import Hotels from './Pages/Hotels/Hotels';
 import Accueil from './Pages/Accueil/Accueil';
 import Admin from './Pages/Admin/Admin';
+import VoyageDetail from './Pages/VoyageDetail/VoyageDetail';
+import HotelDetail from './Pages/HotelDetail/HotelDetail';
 
 function App() {
   const dispatch = useDispatch();
@@ -46,7 +48,8 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path='/' element={<Navigate to="/accueil" />} />
-
+<Route path='/voyage/:id' element={<VoyageDetail />} />
+<Route path='/hotel/:id' element={<HotelDetail/>} />
         {/* ─── ROUTE PRIVÉE CLIENT ─── */}
         <Route
           path='/profile'

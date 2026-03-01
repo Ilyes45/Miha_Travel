@@ -1,5 +1,6 @@
 
 const User = require("../models/User");
+const Reservation = require('../models/Reservation');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -74,6 +75,25 @@ exports.login = async (req, res) => {
 
   } catch (error) {
     res.status(400).json({ msg: "Login error", error });
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({ role: "client" }, "nom email createdAt")
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    const usersWithCount = await Promise.all(
+      users.map(async (u) => {
+        const count = await Reservation.countDocuments({ user: u._id });
+        return { ...u.toObject(), reservationCount: count };
+      })
+    );
+
+    res.status(200).json(usersWithCount);
+  } catch (error) {
+    res.status(500).json({ msg: "Erreur serveur", error });
   }
 };
 

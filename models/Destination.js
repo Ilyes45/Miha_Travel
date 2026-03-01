@@ -26,11 +26,8 @@ const DestinationSchema = new Schema({
       type: String,
       required: true,
       trim: true,
-    },
-    isFeatured: {
-      type: Boolean,
-      default: false,
-    }}
+    }
+  }
     ,{ timestamps: true });
 
 // 3 - create model

@@ -1,6 +1,6 @@
 // 1- require express
 const express = require('express');
-const { register, login, updateProfile, deleteUser, deleteMyAccount } = require('../controllers/user');
+const { register, login, updateProfile, deleteUser, deleteMyAccount, getAllUsers } = require('../controllers/user');
 const { registerValidation, validation, loginValidation } = require('../middleware/validation');
 const isauth = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
@@ -23,7 +23,7 @@ router.post('/login', loginValidation(), validation, login);
 router.get('/current', isauth, (req, res) => {
   res.send(req.user );
 });
-
+router.get('/all', isauth, isAdmin, getAllUsers);
 
 // modifier son propre profil (client connecté)
 router.put('/profile', isauth, updateProfile);

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Table, Badge, Modal, Form } from "react-bootstrap";
+import { Button, Table,  Modal, Form } from "react-bootstrap";
 import { createDestination, updateDestination, deleteDestination } from "../../JS/Actions/destination";
 import ImageUpload from "../../Components/ImageUpload";
 
-const initDest = { nom: "", paye: "", description: "", image: "", isFeatured: false };
+const initDest = { nom: "", paye: "", description: "", image: "" };
+
 
 const DestinationTab = ({ destinations, loadDestination }) => {
   const dispatch = useDispatch();
@@ -56,7 +57,7 @@ const DestinationTab = ({ destinations, loadDestination }) => {
         <Table striped bordered hover responsive>
           <thead className="table-dark">
             <tr>
-              <th>Image</th><th>Nom</th><th>Pays</th><th>Description</th><th>Featured</th><th>Actions</th>
+              <th>Image</th><th>Nom</th><th>Pays</th><th>Description</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -68,11 +69,7 @@ const DestinationTab = ({ destinations, loadDestination }) => {
                 <td>{dest.nom}</td>
                 <td>{dest.paye}</td>
                 <td>{dest.description.slice(0, 50)}...</td>
-                <td>
-                  <Badge bg={dest.isFeatured ? "success" : "secondary"}>
-                    {dest.isFeatured ? "Oui" : "Non"}
-                  </Badge>
-                </td>
+               
                 <td>
                   <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(dest)}>✏️ Modifier</Button>
                   <Button variant="danger" size="sm" onClick={() => handleDelete(dest._id)}>🗑️ Supprimer</Button>
@@ -109,9 +106,7 @@ const DestinationTab = ({ destinations, loadDestination }) => {
     onUpload={(url) => setDestForm({ ...destForm, image: url })}
   />
 </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Check type="checkbox" label="Featured ?" name="isFeatured" checked={destForm.isFeatured} onChange={handleChange} />
-            </Form.Group>
+            
             <div className="d-flex justify-content-end gap-2">
               <Button variant="secondary" onClick={() => setShowModal(false)}>Annuler</Button>
               <Button variant="primary" type="submit">{editDestId ? "Modifier" : "Ajouter"}</Button>

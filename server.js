@@ -23,6 +23,8 @@ app.use('/api/upload', require('./routes/upload'));
 app.use('/api/user', require('./routes/user'));
 app.use('/api/destination', require('./routes/destination'));
 app.use('/api/voyage', require('./routes/voyage'));
+app.use('/api/hotel', require('./routes/hotel'));
+app.use('/api/reservation', require('./routes/reservation'));
 
 // 3- create PORT
 const PORT = process.env.PORT;

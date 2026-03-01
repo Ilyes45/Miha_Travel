@@ -19,6 +19,8 @@ const router = express.Router();
 router.get('/', getAllVoyages);
 router.get('/:id', getVoyageById);
 
+
+
 // Admin only
 router.post('/', isauth, isAdmin, createVoyage);
 router.put('/:id', isauth, isAdmin, updateVoyage);

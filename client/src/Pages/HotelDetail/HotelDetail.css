@@ -1,0 +1,141 @@
+/* ─── GALERIE MODERNE ────────────────────────────────────── */
+.hotel-gallery-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 240px 240px;
+  gap: 6px;
+  height: 486px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.hotel-gallery-main {
+  grid-row: 1 / 3;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.hotel-gallery-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.hotel-gallery-main:hover img {
+  transform: scale(1.03);
+}
+
+.hotel-gallery-secondary {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.hotel-gallery-secondary img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.hotel-gallery-secondary:hover img {
+  transform: scale(1.05);
+}
+
+.hotel-gallery-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.hotel-gallery-single {
+  height: 420px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.hotel-gallery-single img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ─── FALLBACK ───────────────────────────────────────────── */
+.hotel-no-image {
+  height: 420px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #8a2be2, #4b0082);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6rem;
+  margin-bottom: 32px;
+}
+
+/* ─── ETOILES ────────────────────────────────────────────── */
+.hotel-etoiles {
+  font-size: 1rem;
+  background: #212529;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* ─── SIDEBAR ────────────────────────────────────────────── */
+.hotel-sidebar {
+  border: 1px solid #dee2e6;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.09);
+  position: sticky;
+  top: 20px;
+}
+
+.hotel-sidebar .price-main {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #0d6efd;
+}
+
+.hotel-sidebar .sidebar-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.hotel-sidebar .sidebar-row span:first-child {
+  color: #6c757d;
+}
+
+/* ─── DESCRIPTION ────────────────────────────────────────── */
+.hotel-description {
+  line-height: 1.9;
+  color: #495057;
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hotel-gallery-wrapper {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 180px 180px;
+    height: 366px;
+  }
+  .hotel-gallery-main {
+    grid-column: 1 / 3;
+    grid-row: 1 / 2;
+  }
+  .hotel-gallery-secondary {
+    grid-row: 2 / 3;
+  }
+}
