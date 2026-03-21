@@ -32,6 +32,12 @@ const HotelSchema = new Schema({
     type: String,
     trim: true,
   },
+  promotion: {
+  actif:           { type: Boolean, default: false },
+  reduction:       { type: Number, default: 0 },     
+  dateExpiration:  { type: Date },
+  prixPromo:       { type: Number },                  
+},
   isFeatured: {
     type: Boolean,
     default: false,

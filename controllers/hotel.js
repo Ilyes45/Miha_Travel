@@ -52,3 +52,22 @@ exports.deleteHotel = async (req, res) => {
     res.status(500).json({ msg: 'Erreur serveur', error });
   }
 };
+
+exports.setPromotion = async (req, res) => {
+  try {
+    const { actif, reduction, dateExpiration } = req.body;
+    const hotel = await Hotel.findById(req.params.id);
+    if (!hotel) return res.status(404).json({ msg: "Hôtel non trouvé" });
+
+    const prixPromo = actif
+      ? Math.round(hotel.prix * (1 - reduction / 100))
+      : null;
+
+    hotel.promotion = { actif, reduction, dateExpiration, prixPromo };
+    await hotel.save();
+
+    res.status(200).json({ msg: "Promotion mise à jour", hotel });
+  } catch (error) {
+    res.status(500).json({ msg: "Erreur serveur", error });
+  }
+};

@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Spinner } from "react-bootstrap";
 import axios from "axios";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, Cell
+} from "recharts";
 import { getAllDestinations } from "../../JS/Actions/destination";
 import { getAllVoyages } from "../../JS/Actions/voyage";
 import { getAllHotels } from "../../JS/Actions/hotel";
@@ -10,9 +14,10 @@ import DestinationTab from "./DestinationTab";
 import VoyageTab from "./VoyageTab";
 import HotelTab from "./HotelTab";
 import ReservationTab from "./ReservationTab";
+import AnnonceTab from "./AnnonceTab";
+import ContactTab from "./ContactTab";
 import "./Admin.css";
 
-/* ── Badge statut ─────────────────────────────────────────── */
 const StatutBadge = ({ statut }) => {
   const map = {
     confirmee:  { label: "✓ Confirmée",  cls: "confirmee"  },
@@ -23,7 +28,6 @@ const StatutBadge = ({ statut }) => {
   return <span className={`admin-badge ${s.cls}`}>{s.label}</span>;
 };
 
-/* ── Stat Card ────────────────────────────────────────────── */
 const StatCard = ({ label, value, sub, subClass, iconClass, icon }) => (
   <div className="admin-stat-card">
     <div className="admin-stat-top">
@@ -35,7 +39,6 @@ const StatCard = ({ label, value, sub, subClass, iconClass, icon }) => (
   </div>
 );
 
-/* ── Avatar initiales ─────────────────────────────────────── */
 const Avatar = ({ nom }) => {
   const initiales = nom
     ? nom.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
@@ -43,15 +46,35 @@ const Avatar = ({ nom }) => {
   return <div className="admin-user-avatar">{initiales}</div>;
 };
 
-/* ── Dashboard Home ───────────────────────────────────────── */
-const DashboardHome = ({ voyages, hotels, reservations, users, loadUsers, user, onTabChange }) => {
-  const totalRevenu = reservations
-    .filter(r => r.statut === "confirmee")
-    .reduce((acc, r) => acc + (r.prixTotal || 0), 0);
+const MiniTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div style={{ background: "#1a2535", color: "white", padding: "8px 12px", borderRadius: 8, fontSize: "0.8rem" }}>
+        <p style={{ margin: "0 0 2px", fontWeight: 700 }}>{label}</p>
+        <p style={{ margin: 0, color: "#4ade80" }}>{payload[0].value.toLocaleString()} DT</p>
+      </div>
+    );
+  }
+  return null;
+};
 
+const DashboardHome = ({ voyages, hotels, reservations, users, loadUsers, statsData, loadStats, user, onTabChange }) => {
+  const totalRevenu = reservations.filter(r => r.statut === "confirmee").reduce((acc, r) => acc + (r.prixTotal || 0), 0);
   const enAttente  = reservations.filter(r => r.statut === "en_attente").length;
   const confirmees = reservations.filter(r => r.statut === "confirmee").length;
   const recentResa = [...reservations].slice(0, 6);
+
+  const annee = new Date().getFullYear();
+  const moisFr = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
+  const currentMonth = new Date().getMonth();
+  const last6 = [];
+  for (let i = 5; i >= 0; i--) {
+    const mIdx = (currentMonth - i + 12) % 12;
+    const yr   = currentMonth - i < 0 ? annee - 1 : annee;
+    const found = statsData.find(d => d.month === mIdx + 1 && d.year === yr);
+    last6.push({ label: moisFr[mIdx], revenu: found?.revenu || 0 });
+  }
+  const maxRevenu = Math.max(...last6.map(d => d.revenu));
 
   return (
     <>
@@ -60,43 +83,54 @@ const DashboardHome = ({ voyages, hotels, reservations, users, loadUsers, user, 
         <p>Bienvenue, <strong>{user?.nom}</strong>. Gérez votre plateforme de voyage.</p>
       </div>
 
-      {/* ── STATS ── */}
       <div className="admin-stats-grid">
-        <StatCard
-          label="Réservations Totales"
-          value={reservations.length}
-          sub={`${enAttente} en attente`}
-          subClass="warning"
-          iconClass="purple"
-          icon="📅"
-        />
-        <StatCard
-          label="Revenu Confirmé"
-          value={`${totalRevenu.toLocaleString()} DT`}
-          sub={`${confirmees} confirmée(s)`}
-          iconClass="green"
-          icon="💰"
-        />
-        <StatCard
-          label="Voyages & Hôtels"
-          value={voyages.length + hotels.length}
-          sub={`${voyages.length} voyages · ${hotels.length} hôtels`}
-          subClass="muted"
-          iconClass="blue"
-          icon="✈️"
-        />
+        <StatCard label="Réservations Totales" value={reservations.length}
+          sub={`${enAttente} en attente`} subClass="warning" iconClass="purple" icon="📅" />
+        <StatCard label="Revenu Confirmé" value={`${totalRevenu.toLocaleString()} DT`}
+          sub={`${confirmees} confirmée(s)`} iconClass="green" icon="💰" />
+        <StatCard label="Voyages & Hôtels" value={voyages.length + hotels.length}
+          sub={`${voyages.length} voyages · ${hotels.length} hôtels`} subClass="muted" iconClass="blue" icon="✈️" />
       </div>
 
-      {/* ── DEUX COLONNES : RESERVATIONS + UTILISATEURS ── */}
-      <div className="admin-two-cols">
+      <div className="admin-section">
+        <div className="admin-section-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <h3>Revenu par mois</h3>
+            <p>6 derniers mois — réservations confirmées uniquement</p>
+          </div>
+          <button className="admin-action-btn" style={{ whiteSpace: "nowrap" }}
+            onClick={() => window.location.href = "/historique"}>
+            Voir l'historique complet →
+          </button>
+        </div>
+        {loadStats ? (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <Spinner animation="border" size="sm" variant="danger" />
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={last6} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e8ecf4" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#6b7a99" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: "#6b7a99" }} axisLine={false} tickLine={false}
+                tickFormatter={v => v > 0 ? `${v.toLocaleString()}` : "0"} width={70} />
+              <Tooltip content={<MiniTooltip />} cursor={{ fill: "#f4f6fb" }} />
+              <Bar dataKey="revenu" radius={[6, 6, 0, 0]} maxBarSize={44}>
+                {last6.map((entry, i) => (
+                  <Cell key={i} fill={entry.revenu === maxRevenu && entry.revenu > 0 ? "#e53935" : "#fca5a5"} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
 
-        {/* ── RESERVATIONS RECENTES ── */}
+      <div className="admin-two-cols">
         <div className="admin-section">
           <div className="admin-section-header">
             <h3>Réservations Récentes</h3>
             <p>Les dernières réservations sur la plateforme</p>
           </div>
-
           {recentResa.length === 0 ? (
             <p className="admin-empty">Aucune réservation pour le moment.</p>
           ) : (
@@ -106,15 +140,12 @@ const DashboardHome = ({ voyages, hotels, reservations, users, loadUsers, user, 
               return (
                 <div key={r._id} className="admin-resa-item">
                   <div className="admin-resa-left">
-                    <div className={`admin-resa-icon ${r.type}`}>
-                      {r.type === "voyage" ? "✈️" : "🏨"}
-                    </div>
+                    <div className={`admin-resa-icon ${r.type}`}>{r.type === "voyage" ? "✈️" : "🏨"}</div>
                     <div>
                       <p className="admin-resa-name">{nom || "—"}</p>
                       <p className="admin-resa-meta">
                         {r.user?.nom} · {dest?.nom}, {dest?.paye} ·{" "}
-                        {new Date(r.dateDebut).toLocaleDateString("fr-FR")} ·{" "}
-                        {r.nombrePersonnes} pers.
+                        {new Date(r.dateDebut).toLocaleDateString("fr-FR")} · {r.nombrePersonnes} pers.
                       </p>
                     </div>
                   </div>
@@ -126,29 +157,21 @@ const DashboardHome = ({ voyages, hotels, reservations, users, loadUsers, user, 
               );
             })
           )}
-
           {reservations.length > 6 && (
-            <button
-              className="admin-action-btn"
-              style={{ width: "100%", marginTop: 14 }}
-              onClick={() => onTabChange("reservations")}
-            >
-              Voir toutes les réservations ({reservations.length}) →
+            <button className="admin-action-btn" style={{ width: "100%", marginTop: 14 }}
+              onClick={() => onTabChange("reservations")}>
+              Voir toutes ({reservations.length}) →
             </button>
           )}
         </div>
 
-        {/* ── NOUVEAUX UTILISATEURS ── */}
         <div className="admin-section">
           <div className="admin-section-header">
             <h3>Nouveaux Utilisateurs</h3>
-            <p>Les utilisateurs récemment inscrits sur la plateforme</p>
+            <p>Les utilisateurs récemment inscrits</p>
           </div>
-
           {loadUsers ? (
-            <div className="text-center py-3">
-              <Spinner animation="border" size="sm" variant="danger" />
-            </div>
+            <div className="text-center py-3"><Spinner animation="border" size="sm" variant="danger" /></div>
           ) : users.length === 0 ? (
             <p className="admin-empty">Aucun utilisateur pour le moment.</p>
           ) : (
@@ -162,46 +185,33 @@ const DashboardHome = ({ voyages, hotels, reservations, users, loadUsers, user, 
                   </div>
                 </div>
                 <div className="admin-user-right">
-                  <p className="admin-user-date">
-                    {new Date(u.createdAt).toLocaleDateString("fr-FR")}
-                  </p>
-                  <p className="admin-user-resa">
-                    {u.reservationCount} réservation(s)
-                  </p>
+                  <p className="admin-user-date">{new Date(u.createdAt).toLocaleDateString("fr-FR")}</p>
+                  <p className="admin-user-resa">{u.reservationCount} réservation(s)</p>
                 </div>
               </div>
             ))
           )}
         </div>
-
       </div>
 
-      {/* ── ACTIONS RAPIDES ── */}
       <div className="admin-section">
         <div className="admin-section-header">
           <h3>Actions Rapides</h3>
           <p>Gérer les éléments de la plateforme</p>
         </div>
         <div className="admin-actions-grid">
-          <button className="admin-action-btn primary" onClick={() => onTabChange("voyages")}>
-            ✈️ Ajouter un Voyage
-          </button>
-          <button className="admin-action-btn primary" onClick={() => onTabChange("hotels")}>
-            🏨 Ajouter un Hôtel
-          </button>
-          <button className="admin-action-btn" onClick={() => onTabChange("destinations")}>
-            🌍 Gérer Destinations
-          </button>
-          <button className="admin-action-btn" onClick={() => onTabChange("reservations")}>
-            📋 Voir Réservations
-          </button>
+          <button className="admin-action-btn primary" onClick={() => onTabChange("voyages")}>✈️ Ajouter un Voyage</button>
+          <button className="admin-action-btn primary" onClick={() => onTabChange("hotels")}>🏨 Ajouter un Hôtel</button>
+          <button className="admin-action-btn" onClick={() => onTabChange("destinations")}>🌍 Gérer Destinations</button>
+          <button className="admin-action-btn" onClick={() => onTabChange("reservations")}>📋 Voir Réservations</button>
+          <button className="admin-action-btn" onClick={() => onTabChange("annonces")}>📢 Gérer Annonces</button>
+          <button className="admin-action-btn" onClick={() => onTabChange("contacts")}>✉️ Voir Messages</button>
         </div>
       </div>
     </>
   );
 };
 
-/* ── MAIN ADMIN ───────────────────────────────────────────── */
 const Admin = () => {
   const dispatch = useDispatch();
   const { user }        = useSelector((s) => s.userReducer);
@@ -210,113 +220,134 @@ const Admin = () => {
   const { hotels,       loadHotel }       = useSelector((s) => s.hotelReducer);
   const { reservations, loadReservation } = useSelector((s) => s.reservationReducer);
 
-  const [activeTab,  setActiveTab]  = useState("dashboard");
-  const [users,      setUsers]      = useState([]);
-  const [loadUsers,  setLoadUsers]  = useState(false);
+  const [activeTab,     setActiveTab]     = useState("dashboard");
+  const [users,         setUsers]         = useState([]);
+  const [loadUsers,     setLoadUsers]     = useState(false);
+  const [statsData,     setStatsData]     = useState([]);
+  const [loadStats,     setLoadStats]     = useState(false);
+  const [nonLusCount,   setNonLusCount]   = useState(0);
 
   useEffect(() => {
+    const token  = localStorage.getItem("token");
+    const config = { headers: { authorization: token } };
+
     dispatch(getAllDestinations());
     dispatch(getAllVoyages());
     dispatch(getAllHotels());
     dispatch(getAllReservations());
+
+    const fetchUsers = async () => {
+      setLoadUsers(true);
+      try {
+        const res = await axios.get("/api/user/all", config);
+        setUsers(res.data);
+      } catch (e) {
+        console.error("Erreur users", e);
+      } finally { setLoadUsers(false); }
+    };
+
+    const fetchStats = async () => {
+      setLoadStats(true);
+      try {
+        const res = await axios.get("/api/reservation/revenu-par-mois", config);
+        setStatsData(res.data);
+      } catch (e) {
+        console.error("Erreur stats", e);
+      } finally { setLoadStats(false); }
+    };
+
+    const fetchNonLus = async () => {
+  try {
+    const res = await axios.get("/api/contact", {
+      headers: { authorization: token }
+    });
+    setNonLusCount(res.data.filter(c => !c.repondu).length);
+  } catch {}
+};
+
     fetchUsers();
+    fetchStats();
+    fetchNonLus();
   }, [dispatch]);
 
-  const fetchUsers = async () => {
-    setLoadUsers(true);
-    try {
-      const res = await axios.get("/api/user/all", {
-        headers: { authorization: localStorage.getItem("token") },
-      });
-      setUsers(res.data);
-    } catch (e) {
-      console.error("Erreur chargement users", e);
-    } finally {
-      setLoadUsers(false);
-    }
-  };
-
   const tabs = [
-    { key: "dashboard",    label: "🏠 Tableau de bord" },
-    { key: "reservations", label: "📋 Réservations" },
-    { key: "voyages",      label: "✈️ Voyages" },
-    { key: "hotels",       label: "🏨 Hôtels" },
-    { key: "destinations", label: "🌍 Destinations" },
+    { key: "dashboard",    label: "Tableau de bord" },
+    { key: "reservations", label: "Réservations" },
+    { key: "voyages",      label: "Voyages" },
+    { key: "hotels",       label: "Hôtels" },
+    { key: "destinations", label: "Destinations" },
+    { key: "annonces",     label: "Annonces" },
+    { key: "contacts",     label: "Messages", badge: nonLusCount },
   ];
 
   const isLoading = loadDestination || loadVoyage || loadHotel || loadReservation;
 
+  const headerTitle = {
+    reservations: "Réservations",
+    voyages:      "Voyages",
+    hotels:       "Hôtels",
+    destinations: "Destinations",
+    annonces:     "Annonces",
+    contacts:     "Messages",
+  };
+
   return (
     <div className="admin-page">
       <div className="admin-container">
-
-        {/* ── TABS NAV ── */}
         <div className="admin-tabs-nav">
           {tabs.map((t) => (
-            <button
-              key={t.key}
+            <button key={t.key}
               className={`admin-tab-btn ${activeTab === t.key ? "active" : ""}`}
-              onClick={() => setActiveTab(t.key)}
-            >
+              onClick={() => setActiveTab(t.key)}>
               {t.label}
+              {t.badge > 0 && (
+                <span style={{
+                  background: "#cc0000", color: "white",
+                  borderRadius: 20, padding: "1px 7px",
+                  fontSize: "0.7rem", marginLeft: 6, fontWeight: 700,
+                }}>
+                  {t.badge}
+                </span>
+              )}
             </button>
           ))}
         </div>
 
-        {/* ── LOADING ── */}
         {isLoading && activeTab === "dashboard" && (
           <div style={{ textAlign: "center", padding: "60px 0" }}>
             <Spinner animation="border" variant="danger" />
           </div>
         )}
 
-        {/* ── DASHBOARD ── */}
         {activeTab === "dashboard" && !isLoading && (
           <DashboardHome
-            voyages={voyages}
-            hotels={hotels}
-            reservations={reservations}
-            users={users}
-            loadUsers={loadUsers}
-            user={user}
-            onTabChange={setActiveTab}
+            voyages={voyages} hotels={hotels} reservations={reservations}
+            users={users} loadUsers={loadUsers}
+            statsData={statsData} loadStats={loadStats}
+            user={user} onTabChange={setActiveTab}
           />
         )}
 
-        {/* ── AUTRES TABS ── */}
         {activeTab !== "dashboard" && (
           <>
             <div className="admin-header">
-              <h1>
-                {activeTab === "reservations" && "📋 Réservations"}
-                {activeTab === "voyages"      && "✈️ Voyages"}
-                {activeTab === "hotels"       && "🏨 Hôtels"}
-                {activeTab === "destinations" && "🌍 Destinations"}
-              </h1>
-              <button
-                className="admin-action-btn"
+              <h1>{headerTitle[activeTab]}</h1>
+              <button className="admin-action-btn"
                 style={{ display: "inline-flex", marginTop: 8 }}
-                onClick={() => setActiveTab("dashboard")}
-              >
+                onClick={() => setActiveTab("dashboard")}>
                 ← Retour au tableau de bord
               </button>
             </div>
-
             <div className="admin-content">
               {activeTab === "reservations" && <ReservationTab />}
-              {activeTab === "voyages"      && (
-                <VoyageTab voyages={voyages} destinations={destinations} loadVoyage={loadVoyage} />
-              )}
-              {activeTab === "hotels"       && (
-                <HotelTab hotels={hotels} destinations={destinations} loadHotel={loadHotel} />
-              )}
-              {activeTab === "destinations" && (
-                <DestinationTab destinations={destinations} loadDestination={loadDestination} />
-              )}
+              {activeTab === "voyages"      && <VoyageTab voyages={voyages} destinations={destinations} loadVoyage={loadVoyage} />}
+              {activeTab === "hotels"       && <HotelTab hotels={hotels} destinations={destinations} loadHotel={loadHotel} />}
+              {activeTab === "destinations" && <DestinationTab destinations={destinations} loadDestination={loadDestination} />}
+              {activeTab === "annonces"     && <AnnonceTab />}
+              {activeTab === "contacts"     && <ContactTab />}
             </div>
           </>
         )}
-
       </div>
     </div>
   );

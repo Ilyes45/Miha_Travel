@@ -33,7 +33,12 @@ const VoyageSchema = new Schema({
     required: true,
     min: 0,
   },
-  
+  promotion: {
+  actif:           { type: Boolean, default: false },
+  reduction:       { type: Number, default: 0 },     
+  dateExpiration:  { type: Date },
+  prixPromo:       { type: Number },                  
+},
 
   description: {
     type: String,

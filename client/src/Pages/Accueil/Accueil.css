@@ -1,81 +1,364 @@
-/* ─── HERO ─────────────────────────────────────────────── */
+.accueil-page { background: #fafbfc; }
+
+/* ── HERO ── */
 .hero {
-  background: linear-gradient(135deg, #1a6b8a 0%, #0d3b4f 100%);
-  color: white;
-  padding: 80px 0;
+  position: relative;
+  background: linear-gradient(135deg, #1a0505 0%, #5a0000 40%, #cc0000 100%);
+  padding: 80px 0 60px;
   text-align: center;
+  overflow: hidden;
 }
 
-.hero h1 {
-  font-size: 3rem;
-  font-weight: bold;
+.hero::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 60% 40%, rgba(255,100,0,0.15) 0%, transparent 70%);
 }
 
-.hero p {
-  font-size: 1.3rem;
-  opacity: 0.85;
+.hero-overlay {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* ─── SECTIONS ──────────────────────────────────────────── */
-.section-title {
-  font-weight: bold;
-  margin-bottom: 1.5rem;
+.hero-content { position: relative; z-index: 2; }
+
+.hero-tag {
+  color: rgba(255,255,255,0.65);
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
 }
 
-/* ─── VOYAGE CARD ───────────────────────────────────────── */
-.voyage-card {
+.hero-title {
+  font-size: 3.2rem;
+  font-weight: 900;
+  color: white;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.hero-title span { color: #ffcc00; }
+
+.hero-sub {
+  color: rgba(255,255,255,0.8);
+  font-size: 1.1rem;
+  margin-bottom: 32px;
+}
+
+/* ── HERO SEARCH ── */
+
+.hero-search {
+  display: flex;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto 40px;
   border-radius: 12px;
   overflow: hidden;
-  transition: transform 0.2s;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+  background: white;
+}
+
+/* INPUT */
+
+.hero-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 16px 20px;
+  font-size: 0.95rem;
+  color: #333;
+  background: white;
+}
+
+.hero-search-input::placeholder {
+  color: #999;
+}
+
+/* BUTTON */
+
+.hero-search-btn {
+  background: #ffcc00;
+  color: #1a0505;
+  border: none;
+  padding: 16px 28px;
+  font-size: 0.95rem;
+  font-weight: 800;
   cursor: pointer;
+  transition: background 0.2s ease;
+  white-space: nowrap;
 }
 
-.voyage-card:hover {
-  transform: translateY(-5px);
+.hero-search-btn:hover {
+  background: #f0bb00;
 }
 
-.voyage-card-img {
-  height: 200px;
-  object-fit: cover;
+/* ── RESPONSIVE ── */
+
+@media (max-width: 768px) {
+
+  .hero-search {
+    flex-direction: column;
+    max-width: 90%;
+  }
+
+  .hero-search-input {
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .hero-search-btn {
+    width: 100%;
+    border-radius: 0 0 12px 12px;
+  }
+
+
+}
+.hero input::placeholder {
+  color: rgba(255,255,255,0.7) !important;
+}
+
+
+/* ── HERO STATS ── */
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+}
+
+.hero-stat { text-align: center; }
+
+.hero-stat-num {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: white;
+  line-height: 1;
+}
+
+.hero-stat-label {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.hero-stat-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255,255,255,0.2);
+}
+
+/* ── SHORTCUTS ── */
+.shortcuts-bar {
+  background: white;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.shortcuts {
+  display: flex;
+  justify-content: center;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 28px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6b7a99;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.shortcut-item:hover {
+  color: #cc0000;
+  border-bottom-color: #cc0000;
+  background: #fff5f5;
+}
+
+.shortcut-icon { font-size: 1.1rem; }
+
+/* ── SECTIONS ── */
+.section-block { margin-bottom: 52px; }
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a2535;
+  margin: 0 0 4px;
+}
+
+.section-sub {
+  color: #6b7a99;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.section-link {
+  background: none;
+  border: none;
+  color: #cc0000;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.section-link:hover { opacity: 0.7; }
+
+.section-divider {
+  border: none;
+  border-top: 2px solid #f0f0f0;
+  margin: 48px 0;
+}
+
+/* ── PROMO CARDS ── */
+.promo-section {
+  background: linear-gradient(135deg, #fff5f5, #fff);
+  border-radius: 20px;
+  padding: 32px 28px;
+  margin-bottom: 48px;
+  border: 1px solid #fde8e8;
+}
+
+.promo-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border: 1px solid #f0d0d0;
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   width: 100%;
 }
 
-.voyage-card-no-img {
+.promo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(229,57,53,0.15);
+}
+
+.promo-card-img-wrap {
+  position: relative;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.promo-card-img {
+  width: 100%;
   height: 200px;
-  background: linear-gradient(135deg, #1a6b8a, #0d3b4f);
+  object-fit: cover;
+  display: block;
+}
+
+.promo-card-img-placeholder {
+  width: 100%;
+  height: 200px;
+  background: #f4f6fb;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 4rem;
+  font-size: 3rem;
 }
 
-.voyage-card-badge-featured {
+.promo-badge-reduction {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  font-size: 0.85rem;
+  top: 12px; right: 12px;
+  background: #e53935;
+  color: white;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  z-index: 1;
 }
 
-.voyage-card-badge-jours {
+.promo-badge-expiry {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 0.85rem;
+  bottom: 12px; left: 12px;
+  background: rgba(0,0,0,0.65);
+  color: white;
+  border-radius: 8px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  z-index: 1;
 }
 
-.voyage-card-price {
-  font-weight: bold;
+.promo-card-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.promo-card-title {
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0 0 6px;
+  color: #1a2535;
+}
+
+.promo-card-dest {
+  color: #6b7a99;
+  font-size: 0.85rem;
+  margin: 0 0 12px;
+}
+
+.promo-card-prix {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: auto;
+}
+
+.promo-prix-barre {
+  text-decoration: line-through;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.promo-prix-promo {
+  color: #e53935;
+  font-weight: 800;
   font-size: 1.2rem;
-  color: #0d6efd;
+  margin-left: 8px;
 }
 
-.voyage-card-description {
-  font-size: 0.9rem;
-  color: #6c757d;
+.promo-economie {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 0.82rem;
 }
 
-.voyage-card-meta {
-  font-size: 0.9rem;
-  color: #6c757d;
-  margin-bottom: 0.25rem;
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .hero-title { font-size: 2rem; }
+  .shortcuts { overflow-x: auto; justify-content: flex-start; }
+  .shortcut-item { padding: 14px 18px; font-size: 0.82rem; }
+  .hero-stats { gap: 20px; }
+  .hero-stat-num { font-size: 1.4rem; }
+  .section-header { flex-direction: column; align-items: flex-start; gap: 8px; }
 }

@@ -15,7 +15,10 @@ import Accueil from './Pages/Accueil/Accueil';
 import Admin from './Pages/Admin/Admin';
 import VoyageDetail from './Pages/VoyageDetail/VoyageDetail';
 import HotelDetail from './Pages/HotelDetail/HotelDetail';
-
+import Historique from './Pages/Historique/Historique';
+import Promotions from './Pages/Promotions/Promotions'
+import Search from './Pages/Search/Search';
+import Contact from './Pages/Contact/Contact';
 function App() {
   const dispatch = useDispatch();
   const { user, isAuth, loadUser } = useSelector((state) => state.userReducer);
@@ -50,6 +53,8 @@ function App() {
         <Route path='/' element={<Navigate to="/accueil" />} />
 <Route path='/voyage/:id' element={<VoyageDetail />} />
 <Route path='/hotel/:id' element={<HotelDetail/>} />
+<Route path='/search' element={<Search />} />
+<Route path='/contact' element={<Contact />} />
         {/* ─── ROUTE PRIVÉE CLIENT ─── */}
         <Route
           path='/profile'
@@ -65,6 +70,16 @@ function App() {
               : <Navigate to="/accueil" />
           }
         />
+
+        <Route
+  path='/historique'
+  element={
+    isAuth && user?.role === "admin"
+      ? <Historique/>
+      : <Navigate to="/accueil" />
+  }
+/>
+<Route path='/promotions' element={<Promotions />} />
 
         <Route path='*' element={<Error />} />
       </Routes>

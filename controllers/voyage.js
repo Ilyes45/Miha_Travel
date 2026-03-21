@@ -1,6 +1,5 @@
 const Voyage = require('../models/Voyage');
 
-// GET all voyages
 exports.getAllVoyages = async (req, res) => {
   try {
     const voyages = await Voyage.find().populate('destination');
@@ -10,7 +9,6 @@ exports.getAllVoyages = async (req, res) => {
   }
 };
 
-// GET one voyage
 exports.getVoyageById = async (req, res) => {
   try {
     const voyage = await Voyage.findById(req.params.id).populate('destination');
@@ -21,7 +19,6 @@ exports.getVoyageById = async (req, res) => {
   }
 };
 
-// POST create voyage (admin only)
 exports.createVoyage = async (req, res) => {
   try {
     const newVoyage = new Voyage(req.body);
@@ -32,7 +29,6 @@ exports.createVoyage = async (req, res) => {
   }
 };
 
-// PUT update voyage (admin only)
 exports.updateVoyage = async (req, res) => {
   try {
     const updated = await Voyage.findByIdAndUpdate(
@@ -47,7 +43,6 @@ exports.updateVoyage = async (req, res) => {
   }
 };
 
-// DELETE voyage (admin only)
 exports.deleteVoyage = async (req, res) => {
   try {
     const deleted = await Voyage.findByIdAndDelete(req.params.id);
@@ -55,5 +50,24 @@ exports.deleteVoyage = async (req, res) => {
     res.status(200).json({ msg: 'Voyage supprimé avec succès' });
   } catch (error) {
     res.status(500).json({ msg: 'Erreur serveur', error });
+  }
+};
+
+exports.setPromotion = async (req, res) => {
+  try {
+    const { actif, reduction, dateExpiration } = req.body;
+    const voyage = await Voyage.findById(req.params.id);
+    if (!voyage) return res.status(404).json({ msg: "Voyage non trouvé" });
+
+    const prixPromo = actif
+      ? Math.round(voyage.price * (1 - reduction / 100))
+      : null;
+
+    voyage.promotion = { actif, reduction, dateExpiration, prixPromo };
+    await voyage.save();
+
+    res.status(200).json({ msg: "Promotion mise à jour", voyage });
+  } catch (error) {
+    res.status(500).json({ msg: "Erreur serveur", error });
   }
 };

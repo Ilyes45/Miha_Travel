@@ -26,6 +26,10 @@ app.use('/api/voyage', require('./routes/voyage'));
 app.use('/api/hotel', require('./routes/hotel'));
 app.use('/api/reservation', require('./routes/reservation'));
 
+app.use('/api/promotion', require('./routes/promotion'));
+app.use("/api/notification", require("./routes/notification"));
+app.use("/api/contact", require("./routes/contact"));
+app.use('/api/annonce', require('./routes/annonce'));
 // 3- create PORT
 const PORT = process.env.PORT;
 

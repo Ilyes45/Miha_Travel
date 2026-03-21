@@ -1,83 +1,127 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Container, Row, Col, Form, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Spinner } from "react-bootstrap";
+import { useSearchParams } from "react-router-dom";
 import { getAllVoyages } from "../../JS/Actions/voyage";
-import VoyageList from "../../Components//VoyageList/VoyageList";
+import VoyageList from "../../Components/VoyageList/VoyageList";
+import "./Voyages.css";
 
 const Voyages = () => {
   const dispatch = useDispatch();
   const { voyages, loadVoyage } = useSelector((s) => s.voyageReducer);
+  const [searchParams] = useSearchParams();
 
-  const [search, setSearch] = useState("");
+  const [search,     setSearch]     = useState("");
   const [filterPays, setFilterPays] = useState("");
+  const [filterDest, setFilterDest] = useState("");
 
   useEffect(() => {
     dispatch(getAllVoyages());
   }, [dispatch]);
 
-  // liste des pays uniques
+  const destIdFromUrl = searchParams.get("destination");
+
+  useEffect(() => {
+    if (destIdFromUrl && voyages.length > 0) {
+      const dest = voyages.find(v => v.destination?._id === destIdFromUrl)?.destination;
+      if (dest) {
+        setFilterDest(destIdFromUrl);
+        setFilterPays(dest.paye);
+      }
+    }
+  }, [destIdFromUrl, voyages]);
+
   const pays = [...new Set(voyages.map((v) => v.destination?.paye).filter(Boolean))];
 
-  // filtrage
+  const destinations = filterPays
+    ? [...new Map(
+        voyages
+          .filter(v => v.destination?.paye === filterPays)
+          .map(v => [v.destination?._id, v.destination])
+      ).values()]
+    : [];
+
+  const handlePaysChange = (e) => {
+    setFilterPays(e.target.value);
+    setFilterDest("");
+  };
+
   const filtered = voyages.filter((v) => {
-    const matchSearch = v.title.toLowerCase().includes(search.toLowerCase()) ||
-      v.destination?.nom.toLowerCase().includes(search.toLowerCase());
+    const matchSearch =
+      v.title?.toLowerCase().includes(search.toLowerCase()) ||
+      v.destination?.nom?.toLowerCase().includes(search.toLowerCase());
     const matchPays = filterPays ? v.destination?.paye === filterPays : true;
-    return matchSearch && matchPays;
+    const matchDest = filterDest ? v.destination?._id === filterDest : true;
+    return matchSearch && matchPays && matchDest;
   });
 
+  const hasFilter = filterPays || filterDest || search;
+
   return (
-    <div>
-      {/* ─── HEADER ───────────────────────────────────────────── */}
-      <div
-        style={{
-          background: "linear-gradient(135deg, #1a6b8a 0%, #0d3b4f 100%)",
-          color: "white",
-          padding: "50px 0",
-          textAlign: "center",
-        }}
-      >
-        <Container>
-          <h1 style={{ fontSize: "2.5rem", fontWeight: "bold" }}>🌍 Nos Voyages</h1>
-          <p style={{ fontSize: "1.1rem", opacity: 0.85 }}>
-            Trouvez le voyage de vos rêves
-          </p>
+    <div className="page-wrapper">
+
+      {/* ── HEADER ── */}
+      <div className="page-header">
+        <div className="page-header-overlay" />
+        <Container className="page-header-content">
+          <p className="page-header-tag">Miha Travel</p>
+          <h1 className="page-header-title">Nos Voyages</h1>
+          <p className="page-header-sub">Trouvez le voyage de vos rêves</p>
         </Container>
       </div>
 
       <Container className="py-5">
 
-        {/* ─── FILTRES ──────────────────────────────────────── */}
-        <Row className="mb-4 g-3">
-          <Col md={6}>
-            <Form.Control
-              placeholder="🔍 Rechercher un voyage ou destination..."
+        {/* ── FILTRES ── */}
+        <div className="filters-bar">
+          <div className="filters-left">
+            <input
+              type="text"
+              className="filter-input"
+              placeholder="Rechercher un voyage, destination..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-          </Col>
-          <Col md={3}>
-            <Form.Select
-              value={filterPays}
-              onChange={(e) => setFilterPays(e.target.value)}
-            >
-              <option value="">🌐 Tous les pays</option>
+            <select className="filter-select" value={filterPays} onChange={handlePaysChange}>
+              <option value="">Tous les pays</option>
               {pays.map((p) => (
                 <option key={p} value={p}>{p}</option>
               ))}
-            </Form.Select>
-          </Col>
-          <Col md={3} className="d-flex align-items-center">
-            <span className="text-muted">
-              {filtered.length} voyage{filtered.length > 1 ? "s" : ""} trouvé{filtered.length > 1 ? "s" : ""}
+            </select>
+            {filterPays && destinations.length > 0 && (
+              <select className="filter-select" value={filterDest} onChange={(e) => setFilterDest(e.target.value)}>
+                <option value="">Toutes les destinations</option>
+                {destinations.map((d) => (
+                  <option key={d._id} value={d._id}>{d.nom}</option>
+                ))}
+              </select>
+            )}
+          </div>
+          <div className="filters-right">
+            <span className="filter-count">
+              {filtered.length} voyage{filtered.length > 1 ? "s" : ""}
             </span>
-          </Col>
-        </Row>
+            {hasFilter && (
+              <button className="filter-clear" onClick={() => {
+                setSearch(""); setFilterPays(""); setFilterDest("");
+                window.history.pushState({}, "", "/voyage");
+              }}>
+                Effacer les filtres
+              </button>
+            )}
+          </div>
+        </div>
 
-        {/* ─── LISTE ────────────────────────────────────────── */}
+        {/* ── LISTE ── */}
         {loadVoyage ? (
           <div className="text-center py-5">
-            <Spinner animation="border" variant="primary" />
+            <Spinner animation="border" variant="danger" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="empty-state">
+            <p className="empty-icon">✈️</p>
+            <h4>Aucun voyage trouvé</h4>
+            <p>Essayez de modifier vos filtres</p>
           </div>
         ) : (
           <VoyageList voyages={filtered} />

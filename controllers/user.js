@@ -19,7 +19,7 @@ exports.register = async(req , res ) =>{
     const hashedPassword = await bcrypt.hash(motDePasse, saltRounds);
 
     // 3️⃣ créer user
-    const newUser = new User({...req.body, motDePasse: hashedPassword });
+    const newUser = new User({...req.body, motDePasse: hashedPassword })
 
     await newUser.save();
 
@@ -131,5 +131,33 @@ exports.deleteMyAccount = async (req, res) => {
     res.status(200).json({ msg: 'Compte supprimé avec succès' });
   } catch (error) {
     res.status(500).json({ msg: 'Erreur serveur', error });
+  }
+};
+
+
+// changer mot de passe
+exports.changePassword = async (req, res) => {
+  try {
+    const { ancienMotDePasse, nouveauMotDePasse } = req.body;
+
+    if (!ancienMotDePasse || !nouveauMotDePasse)
+      return res.status(400).json({ msg: "Tous les champs sont obligatoires" });
+
+    if (nouveauMotDePasse.length < 6)
+      return res.status(400).json({ msg: "Le nouveau mot de passe doit contenir au moins 6 caractères" });
+
+    const user = await User.findById(req.user._id);
+
+    const isMatch = await bcrypt.compare(ancienMotDePasse, user.motDePasse);
+    if (!isMatch)
+      return res.status(400).json({ msg: "Ancien mot de passe incorrect" });
+
+    const hashed = await bcrypt.hash(nouveauMotDePasse, 10);
+    user.motDePasse = hashed;
+    await user.save();
+
+    res.status(200).json({ msg: "Mot de passe modifié avec succès" });
+  } catch (error) {
+    res.status(500).json({ msg: "Erreur serveur", error });
   }
 };

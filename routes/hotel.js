@@ -1,22 +1,19 @@
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
 const {
-  getAllHotels,
-  getHotelById,
-  createHotel,
-  updateHotel,
-  deleteHotel,
+  getAllHotels, getHotelById,
+  createHotel, updateHotel,
+  deleteHotel, setPromotion,
 } = require('../controllers/hotel');
-const isauth = require('../middleware/auth');
+const isauth  = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
 
-// Public
-router.get('/', getAllHotels);
+router.get('/',    getAllHotels);
 router.get('/:id', getHotelById);
 
-// Admin only
-router.post('/', isauth, isAdmin, createHotel);
-router.put('/:id', isauth, isAdmin, updateHotel);
-router.delete('/:id', isauth, isAdmin, deleteHotel);
+router.post('/',              isauth, isAdmin, createHotel);
+router.put('/promotion/:id',  isauth, isAdmin, setPromotion);  // ← AVANT /:id
+router.put('/:id',            isauth, isAdmin, updateHotel);
+router.delete('/:id',         isauth, isAdmin, deleteHotel);
 
 module.exports = router;

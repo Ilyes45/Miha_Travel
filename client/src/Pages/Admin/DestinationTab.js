@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Button, Table,  Modal, Form } from "react-bootstrap";
 import { createDestination, updateDestination, deleteDestination } from "../../JS/Actions/destination";
-import ImageUpload from "../../Components/ImageUpload";
+
 
 const initDest = { nom: "", paye: "", description: "", image: "" };
 
@@ -57,18 +57,16 @@ const DestinationTab = ({ destinations, loadDestination }) => {
         <Table striped bordered hover responsive>
           <thead className="table-dark">
             <tr>
-              <th>Image</th><th>Nom</th><th>Pays</th><th>Description</th><th>Actions</th>
+              <th>Nom</th><th>Pays</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {destinations.map((dest) => (
               <tr key={dest._id}>
-                <td>
-                  <img src={dest.image} alt={dest.nom} style={{ width: 60, height: 50, objectFit: "cover", borderRadius: 6 }} />
-                </td>
+               
                 <td>{dest.nom}</td>
                 <td>{dest.paye}</td>
-                <td>{dest.description.slice(0, 50)}...</td>
+                
                
                 <td>
                   <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(dest)}>✏️ Modifier</Button>
@@ -95,17 +93,8 @@ const DestinationTab = ({ destinations, loadDestination }) => {
               <Form.Label>Pays</Form.Label>
               <Form.Control name="paye" value={destForm.paye} onChange={handleChange} required />
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control as="textarea" rows={3} name="description" value={destForm.description} onChange={handleChange} required />
-            </Form.Group>
-            <Form.Group className="mb-3">
-  <Form.Label>Image</Form.Label>
-  <ImageUpload
-    currentImage={destForm.image}
-    onUpload={(url) => setDestForm({ ...destForm, image: url })}
-  />
-</Form.Group>
+            
+           
             
             <div className="d-flex justify-content-end gap-2">
               <Button variant="secondary" onClick={() => setShowModal(false)}>Annuler</Button>

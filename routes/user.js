@@ -1,6 +1,6 @@
 // 1- require express
 const express = require('express');
-const { register, login, updateProfile, deleteUser, deleteMyAccount, getAllUsers } = require('../controllers/user');
+const { register, login, updateProfile, deleteUser, deleteMyAccount, getAllUsers, changePassword } = require('../controllers/user');
 const { registerValidation, validation, loginValidation } = require('../middleware/validation');
 const isauth = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
@@ -34,6 +34,7 @@ router.delete('/profile', isauth, deleteMyAccount);
 // supprimer un user par id (admin seulement)
 router.delete('/:id', isauth, isAdmin, deleteUser);
 
+router.put("/change-password", isauth, changePassword);
 // 3- export 
 
 module.exports = router;

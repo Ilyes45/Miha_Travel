@@ -16,16 +16,6 @@ const DestinationSchema = new Schema({
       type: String,
       required: true,
       trim: true,
-    },
-    description: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    image: {
-      type: String,
-      required: true,
-      trim: true,
     }
   }
     ,{ timestamps: true });

@@ -1,17 +1,19 @@
+const Notification = require('../models/Notification');
 const Reservation = require('../models/Reservation');
+const { sendReservationNotif } = require('../utils/sendEmail');
 
 // ─── CLIENT ────────────────────────────────────────────────
 
 // créer une réservation
 exports.createReservation = async (req, res) => {
   try {
-    const { type, voyage, hotel, dateDebut, dateFin, nombrePersonnes, telephone,prixTotal, message } = req.body;
+    const { type, voyage, hotel, dateDebut, dateFin, nombrePersonnes, telephone, prixTotal, message } = req.body;
 
     const newReservation = new Reservation({
       user: req.user._id,
       type,
       voyage: type === "voyage" ? voyage : null,
-      hotel: type === "hotel" ? hotel : null,
+      hotel:  type === "hotel"  ? hotel  : null,
       dateDebut,
       dateFin,
       nombrePersonnes,
@@ -21,10 +23,22 @@ exports.createReservation = async (req, res) => {
     });
 
     await newReservation.save();
+
     const populated = await newReservation.populate([
-      { path: "voyage" },
-      { path: "hotel" },
+      { path: "user",   select: "nom email" },
+      { path: "voyage", select: "title" },
+      { path: "hotel",  select: "nom" },
     ]);
+
+    // ── email ──
+    sendReservationNotif(populated).catch((err) => console.log("EMAIL ERROR:", err.message));
+
+    // ── notification DB ──
+    await Notification.create({
+      message: `Nouvelle réservation de ${populated.user?.nom} pour ${populated.voyage?.title || populated.hotel?.nom}`,
+      type: "reservation",
+      data: { reservationId: populated._id }
+    });
 
     res.status(201).json({ msg: "Réservation créée avec succès", reservation: populated });
   } catch (error) {
@@ -38,11 +52,11 @@ exports.getMyReservations = async (req, res) => {
     const reservations = await Reservation.find({ user: req.user._id })
       .populate({
         path: "voyage",
-        populate: { path: "destination" }  // ← populate imbriqué
+        populate: { path: "destination" }
       })
       .populate({
         path: "hotel",
-        populate: { path: "destination" }  // ← populate imbriqué
+        populate: { path: "destination" }
       })
       .sort({ createdAt: -1 });
     res.status(200).json(reservations);
@@ -73,9 +87,9 @@ exports.cancelMyReservation = async (req, res) => {
 exports.getAllReservations = async (req, res) => {
   try {
     const reservations = await Reservation.find()
-      .populate("user", "nom email")
+      .populate("user",   "nom email")
       .populate("voyage", "title price")
-      .populate("hotel", "nom prix")
+      .populate("hotel",  "nom prix")
       .sort({ createdAt: -1 });
     res.status(200).json(reservations);
   } catch (error) {
@@ -106,6 +120,48 @@ exports.deleteReservation = async (req, res) => {
     const deleted = await Reservation.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ msg: "Réservation non trouvée" });
     res.status(200).json({ msg: "Réservation supprimée" });
+  } catch (error) {
+    res.status(500).json({ msg: "Erreur serveur", error });
+  }
+};
+
+exports.getRevenuParMois = async (req, res) => {
+  try {
+    const data = await Reservation.aggregate([
+      { $match: { statut: "confirmee" } },
+      {
+        $group: {
+          _id: {
+            year:  { $year:  "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          revenu:       { $sum: "$prixTotal" },
+          reservations: { $sum: 1 },
+        }
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+      {
+        $project: {
+          _id: 0,
+          year:         "$_id.year",
+          month:        "$_id.month",
+          revenu:       1,
+          reservations: 1,
+        }
+      }
+    ]);
+
+    const moisFr = [
+      "", "Jan", "Fév", "Mar", "Avr", "Mai", "Jun",
+      "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"
+    ];
+
+    const formatted = data.map(d => ({
+      ...d,
+      label: `${moisFr[d.month]} ${d.year}`,
+    }));
+
+    res.status(200).json(formatted);
   } catch (error) {
     res.status(500).json({ msg: "Erreur serveur", error });
   }

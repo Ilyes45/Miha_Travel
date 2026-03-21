@@ -1,26 +1,27 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Button, Table, Badge, Modal, Form, Row, Col } from "react-bootstrap";
-import { createVoyage, updateVoyage, deleteVoyage } from "../../JS/Actions/voyage";
+import axios from "axios";
+import { createVoyage, updateVoyage, deleteVoyage, getAllVoyages } from "../../JS/Actions/voyage";
 import MultiImageUpload from "../../Components/MultiImageUpload";
 
 const initVoyage = {
-  title: "",
-  destination: "",
-  departureDate: "",
-  returnDate: "",
-  price: "",
-  description: "",
-  images: [],
-  isFeatured: false,
+  title: "", destination: "", departureDate: "", returnDate: "",
+  price: "", description: "", images: [], isFeatured: false,
 };
 
 const VoyageTab = ({ voyages, destinations, loadVoyage }) => {
   const dispatch = useDispatch();
-  const [voyageForm, setVoyageForm] = useState(initVoyage);
+
+  const [voyageForm,   setVoyageForm]   = useState(initVoyage);
   const [editVoyageId, setEditVoyageId] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [showModal,    setShowModal]    = useState(false);
+  const [uploading,    setUploading]    = useState(false);
+
+  const [showPromoModal, setShowPromoModal] = useState(false);
+  const [promoTarget,    setPromoTarget]    = useState(null);
+  const [promoForm,      setPromoForm]      = useState({ reduction: 10, dateExpiration: "" });
+  const [promoLoading,   setPromoLoading]   = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -64,6 +65,49 @@ const VoyageTab = ({ voyages, destinations, loadVoyage }) => {
     setShowModal(true);
   };
 
+  const openPromo = (v) => {
+    setPromoTarget(v);
+    setPromoForm({
+      reduction: v.promotion?.reduction || 10,
+      dateExpiration: v.promotion?.dateExpiration?.slice(0, 10) || "",
+    });
+    setShowPromoModal(true);
+  };
+
+  const handlePromoSubmit = async (e) => {
+    e.preventDefault();
+    setPromoLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `/api/voyage/promotion/${promoTarget._id}`,
+        { actif: true, reduction: Number(promoForm.reduction), dateExpiration: promoForm.dateExpiration },
+        { headers: { authorization: token } }
+      );
+      dispatch(getAllVoyages());
+      setShowPromoModal(false);
+    } catch (err) {
+      console.error("Erreur promotion", err);
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const handleRemovePromo = async (id) => {
+    if (!window.confirm("Retirer la promotion ?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `/api/voyage/promotion/${id}`,
+        { actif: false, reduction: 0 },
+        { headers: { authorization: token } }
+      );
+      dispatch(getAllVoyages());
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -75,7 +119,8 @@ const VoyageTab = ({ voyages, destinations, loadVoyage }) => {
         <Table striped bordered hover responsive>
           <thead className="table-dark">
             <tr>
-              <th>Titre</th><th>Destination</th><th>Départ</th><th>Retour</th><th>Prix</th><th>Featured</th><th>Actions</th>
+              <th>Titre</th><th>Destination</th><th>Départ</th><th>Retour</th>
+              <th>Prix</th><th>Promo</th><th>Featured</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -87,13 +132,24 @@ const VoyageTab = ({ voyages, destinations, loadVoyage }) => {
                 <td>{v.returnDate?.slice(0, 10)}</td>
                 <td>{v.price} TND</td>
                 <td>
+                  {v.promotion?.actif
+                    ? <Badge bg="danger">-{v.promotion.reduction}% → {v.promotion.prixPromo} DT</Badge>
+                    : <Badge bg="secondary">Aucune</Badge>}
+                </td>
+                <td>
                   <Badge bg={v.isFeatured ? "success" : "secondary"}>
                     {v.isFeatured ? "Oui" : "Non"}
                   </Badge>
                 </td>
                 <td>
-                  <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(v)}>✏️ Modifier</Button>
-                  <Button variant="danger" size="sm" onClick={() => handleDelete(v._id)}>🗑️ Supprimer</Button>
+                  <div className="d-flex gap-1 flex-wrap">
+                    <Button variant="warning" size="sm" onClick={() => handleEdit(v)}>✏️</Button>
+                    <Button variant="danger"  size="sm" onClick={() => handleDelete(v._id)}>🗑️</Button>
+                    {v.promotion?.actif
+                      ? <Button variant="outline-danger"  size="sm" onClick={() => handleRemovePromo(v._id)}>❌ Promo</Button>
+                      : <Button variant="outline-success" size="sm" onClick={() => openPromo(v)}>🏷️ Offre</Button>
+                    }
+                  </div>
                 </td>
               </tr>
             ))}
@@ -101,6 +157,7 @@ const VoyageTab = ({ voyages, destinations, loadVoyage }) => {
         </Table>
       )}
 
+      {/* ── MODAL VOYAGE ── */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
         <Modal.Header closeButton>
           <Modal.Title>{editVoyageId ? "Modifier Voyage" : "Ajouter Voyage"}</Modal.Title>
@@ -145,7 +202,8 @@ const VoyageTab = ({ voyages, destinations, loadVoyage }) => {
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Check type="checkbox" label="Featured ?" name="isFeatured" checked={voyageForm.isFeatured} onChange={handleChange} className="mt-4" />
+                  <Form.Check type="checkbox" label="Featured ?" name="isFeatured"
+                    checked={voyageForm.isFeatured} onChange={handleChange} className="mt-4" />
                 </Form.Group>
               </Col>
               <Col md={12}>
@@ -172,6 +230,50 @@ const VoyageTab = ({ voyages, destinations, loadVoyage }) => {
               </Button>
             </div>
           </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* ── MODAL PROMOTION ── */}
+      <Modal show={showPromoModal} onHide={() => setShowPromoModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>🏷️ Mettre en promotion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {promoTarget && (
+            <>
+              <p className="mb-3">
+                <strong>{promoTarget.title}</strong> — Prix actuel : <strong>{promoTarget.price} DT</strong>
+              </p>
+              <Form onSubmit={handlePromoSubmit}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Réduction (%)</Form.Label>
+                  <Form.Control type="number" min={1} max={90}
+                    value={promoForm.reduction}
+                    onChange={(e) => setPromoForm({ ...promoForm, reduction: e.target.value })}
+                    required />
+                  {promoForm.reduction > 0 && (
+                    <Form.Text className="text-success fw-bold">
+                      Prix promo : {Math.round(promoTarget.price * (1 - promoForm.reduction / 100))} DT
+                      {" — "}économie : {Math.round(promoTarget.price * promoForm.reduction / 100)} DT
+                    </Form.Text>
+                  )}
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Date d'expiration</Form.Label>
+                  <Form.Control type="date"
+                    value={promoForm.dateExpiration}
+                    onChange={(e) => setPromoForm({ ...promoForm, dateExpiration: e.target.value })}
+                    required />
+                </Form.Group>
+                <div className="d-flex justify-content-end gap-2">
+                  <Button variant="secondary" onClick={() => setShowPromoModal(false)}>Annuler</Button>
+                  <Button variant="success" type="submit" disabled={promoLoading}>
+                    {promoLoading ? "Enregistrement..." : "✓ Confirmer"}
+                  </Button>
+                </div>
+              </Form>
+            </>
+          )}
         </Modal.Body>
       </Modal>
     </>

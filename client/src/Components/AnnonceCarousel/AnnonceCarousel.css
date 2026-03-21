@@ -1,0 +1,75 @@
+.annonce-carousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #f4f6fb;
+  max-height: 180px;
+}
+
+.annonce-track { width: 100%; height: 100%; }
+
+.annonce-slide {
+  display: none;
+  width: 100%;
+}
+
+.annonce-slide.active { display: block; }
+
+.annonce-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.4s ease;
+}
+
+/* ── FLECHES ── */
+.annonce-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.4);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  z-index: 10;
+  line-height: 1;
+}
+
+.annonce-arrow:hover { background: rgba(0,0,0,0.7); }
+.annonce-arrow.left  { left: 12px; }
+.annonce-arrow.right { right: 12px; }
+
+/* ── DOTS ── */
+.annonce-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+}
+
+.annonce-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.annonce-dot.active {
+  background: white;
+  transform: scale(1.3);
+}

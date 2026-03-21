@@ -55,9 +55,7 @@ const HotelCard = ({ hotel, featured }) => {
         {hotel.destination && (
           <p className="text-muted mb-1">📍 {hotel.destination.nom} — {hotel.destination.paye}</p>
         )}
-        {hotel.adresse && (
-          <p className="text-muted mb-1" style={{ fontSize: "0.9rem" }}>🏠 {hotel.adresse}</p>
-        )}
+        
         {hotel.description && (
           <p className="text-muted" style={{ fontSize: "0.9rem", flexGrow: 1 }}>
             {hotel.description.slice(0, 80)}...
