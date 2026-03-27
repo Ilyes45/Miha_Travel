@@ -11,6 +11,6 @@ router.get("/mes-messages",   isauth, getMesMessages);
 router.get("/",               isauth, isAdmin, getAllContacts);
 router.put("/repondre/:id",   isauth, isAdmin, repondreContact);
 router.put("/lu/:id",         isauth, isAdmin, marquerLu);
-router.delete("/:id",         isauth, isAdmin, deleteContact);
+router.delete("/:id",         isauth, deleteContact);
 
 module.exports = router;

@@ -42,13 +42,18 @@ const Accueil = () => {
   };
 
   const handleSearch = (e) => {
-  e.preventDefault();
-  if (search.trim()) navigate(`/search?q=${search.trim()}`);
-};
+    e.preventDefault();
+    if (search.trim()) navigate(`/search?q=${search.trim()}`);
+  };
+
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <div className="accueil-page">
 
+      {/* ── ANNONCES ── */}
       <AnnonceCarousel />
 
       {/* ── HERO ── */}
@@ -67,31 +72,17 @@ const Accueil = () => {
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") handleSearch(e); }}
               style={{
-                flex: 1,
-                padding: "16px 20px",
-                fontSize: "1rem",
-                border: "2px solid rgba(255,255,255,0.8)",
-                borderRadius: "8px",
-                outline: "none",
-                background: "rgba(255,255,255,0.15)",
-                color: "white",
-                backdropFilter: "blur(10px)",
+                flex: 1, padding: "16px 20px", fontSize: "1rem",
+                border: "2px solid rgba(255,255,255,0.8)", borderRadius: "8px",
+                outline: "none", background: "rgba(255,255,255,0.15)",
+                color: "white", backdropFilter: "blur(10px)",
               }}
             />
-            <button
-              onClick={handleSearch}
-              style={{
-                background: "#ffcc00",
-                color: "#111",
-                border: "none",
-                padding: "16px 28px",
-                fontWeight: "800",
-                fontSize: "1rem",
-                borderRadius: "8px",
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-              }}
-            >
+            <button onClick={handleSearch} style={{
+              background: "#ffcc00", color: "#111", border: "none",
+              padding: "16px 28px", fontWeight: "800", fontSize: "1rem",
+              borderRadius: "8px", cursor: "pointer", whiteSpace: "nowrap",
+            }}>
               Rechercher
             </button>
           </div>
@@ -115,35 +106,23 @@ const Accueil = () => {
         </Container>
       </div>
 
-      {/* ── RACCOURCIS ── */}
+      {/* ── NAV ANCRES ── */}
       <div className="shortcuts-bar">
         <Container>
           <div className="shortcuts">
-            <button className="shortcut-item" onClick={() => navigate("/voyage")}>
-              <span className="shortcut-icon">✈️</span>
-              <span>Nos Voyages</span>
-            </button>
-            <button className="shortcut-item" onClick={() => navigate("/hotel")}>
-              <span className="shortcut-icon">🏨</span>
-              <span>Nos Hôtels</span>
-            </button>
-            <button className="shortcut-item" onClick={() => navigate("/promotions")}>
-              <span className="shortcut-icon">🎉</span>
-              <span>Offres Spéciales</span>
-            </button>
-            <button className="shortcut-item" onClick={() => navigate("/contact")}>
-              <span className="shortcut-icon">📞</span>
-              <span>Nous Contacter</span>
-            </button>
+            <button className="shortcut-item" onClick={() => scrollTo("voyages")}>Voyages</button>
+            <button className="shortcut-item" onClick={() => scrollTo("hotels")}>Hôtels</button>
+            <button className="shortcut-item" onClick={() => scrollTo("offres")}>Offres</button>
           </div>
         </Container>
       </div>
 
+      {/* ── CONTENU PRINCIPAL ── */}
       <Container className="py-5">
 
-        {/* ── PROMOTIONS ── */}
+        {/* Offres spéciales */}
         {allPromos.length > 0 && (
-          <section className="section-block">
+          <section id="offres" className="section-block">
             <div className="section-header">
               <div>
                 <h2 className="section-title">Offres Spéciales</h2>
@@ -204,7 +183,7 @@ const Accueil = () => {
           </section>
         )}
 
-        {/* ── VOYAGES FEATURED ── */}
+        {/* Voyages à la une */}
         {!loadVoyage && featuredVoyages.length > 0 && (
           <section className="section-block">
             <div className="section-header">
@@ -220,8 +199,8 @@ const Accueil = () => {
           </section>
         )}
 
-        {/* ── TOUS LES VOYAGES ── */}
-        <section className="section-block">
+        {/* Tous les voyages */}
+        <section id="voyages" className="section-block">
           <div className="section-header">
             <div>
               <h2 className="section-title">Tous nos voyages</h2>
@@ -239,7 +218,7 @@ const Accueil = () => {
 
         <hr className="section-divider" />
 
-        {/* ── HOTELS FEATURED ── */}
+        {/* Hôtels à la une */}
         {!loadHotel && featuredHotels.length > 0 && (
           <section className="section-block">
             <div className="section-header">
@@ -255,8 +234,8 @@ const Accueil = () => {
           </section>
         )}
 
-        {/* ── TOUS LES HOTELS ── */}
-        <section className="section-block">
+        {/* Tous les hôtels */}
+        <section id="hotels" className="section-block">
           <div className="section-header">
             <div>
               <h2 className="section-title">Nos hôtels</h2>

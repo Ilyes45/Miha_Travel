@@ -1,7 +1,7 @@
 const Contact      = require("../models/Contact");
 const Notification = require("../models/Notification");
+const { sendContactMessage } = require("../utils/sendEmail");
 
-// client envoie un message
 exports.sendContact = async (req, res) => {
   try {
     const { nom, email, telephone, message } = req.body;
@@ -9,6 +9,10 @@ exports.sendContact = async (req, res) => {
       return res.status(400).json({ msg: "Nom, email et message sont obligatoires" });
 
     const contact = await Contact.create({ nom, email, telephone, message });
+
+    sendContactMessage({ nom, email, telephone, message }).catch((err) =>
+      console.log("EMAIL CONTACT ERROR:", err.message)
+    );
 
     await Notification.create({
       message: `Nouveau message de ${nom} (${email})`,
@@ -22,7 +26,6 @@ exports.sendContact = async (req, res) => {
   }
 };
 
-// client — ses propres messages
 exports.getMesMessages = async (req, res) => {
   try {
     const contacts = await Contact.find({ email: req.user.email }).sort({ createdAt: -1 });
@@ -32,7 +35,6 @@ exports.getMesMessages = async (req, res) => {
   }
 };
 
-// admin — tous les messages
 exports.getAllContacts = async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ createdAt: -1 });
@@ -42,7 +44,6 @@ exports.getAllContacts = async (req, res) => {
   }
 };
 
-// admin — répondre
 exports.repondreContact = async (req, res) => {
   try {
     const { reponse } = req.body;
@@ -60,9 +61,15 @@ exports.repondreContact = async (req, res) => {
   }
 };
 
-// admin — supprimer
 exports.deleteContact = async (req, res) => {
   try {
+    const contact = await Contact.findById(req.params.id);
+    if (!contact) return res.status(404).json({ msg: "Message non trouvé" });
+
+    if (req.user.role !== "admin" && contact.email !== req.user.email) {
+      return res.status(403).json({ msg: "Non autorisé" });
+    }
+
     await Contact.findByIdAndDelete(req.params.id);
     res.json({ msg: "Message supprimé" });
   } catch (error) {
@@ -70,7 +77,6 @@ exports.deleteContact = async (req, res) => {
   }
 };
 
-// admin — marquer lu
 exports.marquerLu = async (req, res) => {
   try {
     await Contact.findByIdAndUpdate(req.params.id, { lu: true });

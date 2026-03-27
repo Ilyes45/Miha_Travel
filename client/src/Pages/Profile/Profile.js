@@ -65,6 +65,17 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteMsg = async (id) => {
+    if (!window.confirm("Supprimer ce message ?")) return;
+    try {
+      await axios.delete(`/api/contact/${id}`, {
+        headers: { authorization: localStorage.getItem("token") }
+      });
+      setMessages(prev => prev.filter(m => m._id !== id));
+      if (selected?._id === id) setSelected(null);
+    } catch {}
+  };
+
   const handleSaveNom = async () => {
     if (!nom.trim()) return;
     setSavingNom(true);
@@ -286,11 +297,29 @@ const Profile = () => {
                     }}>
                       {m.message}
                     </p>
-                    {m.repondu ? (
-                      <span style={{ background: "#f0fdf4", color: "#16a34a", borderRadius: 20, padding: "2px 8px", fontSize: "0.72rem", fontWeight: 700 }}>Répondu</span>
-                    ) : (
-                      <span style={{ background: "#fff0f0", color: "#cc0000", borderRadius: 20, padding: "2px 8px", fontSize: "0.72rem", fontWeight: 700 }}>En attente</span>
-                    )}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 6 }}>
+                      {m.repondu ? (
+                        <span style={{ background: "#f0fdf4", color: "#16a34a", borderRadius: 20, padding: "2px 8px", fontSize: "0.72rem", fontWeight: 700 }}>
+                          Répondu
+                        </span>
+                      ) : (
+                        <span style={{ background: "#fff0f0", color: "#cc0000", borderRadius: 20, padding: "2px 8px", fontSize: "0.72rem", fontWeight: 700 }}>
+                          En attente
+                        </span>
+                      )}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteMsg(m._id); }}
+                        style={{
+                          background: "none", border: "none", cursor: "pointer",
+                          color: "#aab0c0", fontSize: "0.78rem", fontWeight: 600,
+                          padding: "2px 6px", transition: "color 0.2s",
+                        }}
+                        onMouseEnter={e => e.target.style.color = "#cc0000"}
+                        onMouseLeave={e => e.target.style.color = "#aab0c0"}
+                      >
+                        Supprimer
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -346,14 +375,10 @@ const Profile = () => {
                   <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1a2535", display: "block", marginBottom: 6 }}>
                     Nom complet
                   </label>
-                  <input
-                    type="text"
-                    value={nom}
-                    onChange={(e) => setNom(e.target.value)}
+                  <input type="text" value={nom} onChange={(e) => setNom(e.target.value)}
                     style={fieldStyle}
                     onFocus={e => e.target.style.borderColor = "#cc0000"}
-                    onBlur={e  => e.target.style.borderColor = "#e8ecf4"}
-                  />
+                    onBlur={e  => e.target.style.borderColor = "#e8ecf4"} />
                 </div>
                 {nomSuccess && (
                   <div style={{ background: "#f0fdf4", color: "#16a34a", borderRadius: 8, padding: "10px 14px", fontSize: "0.85rem", marginBottom: 12 }}>
@@ -365,16 +390,13 @@ const Profile = () => {
                     {nomError}
                   </div>
                 )}
-                <button
-                  onClick={handleSaveNom}
-                  disabled={savingNom || nom === user?.nom}
+                <button onClick={handleSaveNom} disabled={savingNom || nom === user?.nom}
                   style={{
                     background: "#cc0000", color: "white", border: "none",
                     borderRadius: 8, padding: "10px 24px", fontWeight: 700,
                     fontSize: "0.9rem", cursor: "pointer",
                     opacity: savingNom || nom === user?.nom ? 0.6 : 1,
-                  }}
-                >
+                  }}>
                   {savingNom ? "Enregistrement..." : "Enregistrer"}
                 </button>
               </div>
@@ -388,27 +410,21 @@ const Profile = () => {
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   <div>
-                    <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1a2535", display: "block", marginBottom: 6 }}>
-                      Ancien mot de passe
-                    </label>
+                    <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1a2535", display: "block", marginBottom: 6 }}>Ancien mot de passe</label>
                     <input type="password" placeholder="••••••••" value={ancienMdp}
                       onChange={(e) => setAncienMdp(e.target.value)} style={fieldStyle}
                       onFocus={e => e.target.style.borderColor = "#cc0000"}
                       onBlur={e  => e.target.style.borderColor = "#e8ecf4"} />
                   </div>
                   <div>
-                    <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1a2535", display: "block", marginBottom: 6 }}>
-                      Nouveau mot de passe
-                    </label>
+                    <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1a2535", display: "block", marginBottom: 6 }}>Nouveau mot de passe</label>
                     <input type="password" placeholder="••••••••" value={nouveauMdp}
                       onChange={(e) => setNouveauMdp(e.target.value)} style={fieldStyle}
                       onFocus={e => e.target.style.borderColor = "#cc0000"}
                       onBlur={e  => e.target.style.borderColor = "#e8ecf4"} />
                   </div>
                   <div>
-                    <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1a2535", display: "block", marginBottom: 6 }}>
-                      Confirmer le nouveau mot de passe
-                    </label>
+                    <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1a2535", display: "block", marginBottom: 6 }}>Confirmer le nouveau mot de passe</label>
                     <input type="password" placeholder="••••••••" value={confirmMdp}
                       onChange={(e) => setConfirmMdp(e.target.value)} style={fieldStyle}
                       onFocus={e => e.target.style.borderColor = "#cc0000"}
@@ -425,16 +441,13 @@ const Profile = () => {
                     {mdpError}
                   </div>
                 )}
-                <button
-                  onClick={handleChangeMdp}
-                  disabled={savingMdp}
+                <button onClick={handleChangeMdp} disabled={savingMdp}
                   style={{
                     background: "#cc0000", color: "white", border: "none",
                     borderRadius: 8, padding: "10px 24px", fontWeight: 700,
                     fontSize: "0.9rem", cursor: "pointer", marginTop: 6,
                     opacity: savingMdp ? 0.6 : 1,
-                  }}
-                >
+                  }}>
                   {savingMdp ? "Modification..." : "Modifier le mot de passe"}
                 </button>
               </div>

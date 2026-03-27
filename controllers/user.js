@@ -100,12 +100,12 @@ exports.getAllUsers = async (req, res) => {
 // UPDATE profile (client connecté)
 exports.updateProfile = async (req, res) => {
   try {
-    const { motDePasse, role, ...rest } = req.body; // empêcher de changer role ou password ici
+    const { motDePasse, role, ...rest } = req.body;
 
     const updated = await User.findByIdAndUpdate(
       req.user._id,
       rest,
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     );
 
     res.status(200).json({ msg: 'Profil mis à jour', user: updated });

@@ -6,5 +6,3 @@ const annonceSchema = new mongoose.Schema({
   
   actif:   { type: Boolean, default: true },
 }, { timestamps: true });
-
-module.exports = mongoose.model('Annonce', annonceSchema);

@@ -104,7 +104,7 @@ exports.updateStatut = async (req, res) => {
     const reservation = await Reservation.findByIdAndUpdate(
       req.params.id,
       { statut },
-      { new: true }
+      { returnDocument: 'after' }
     ).populate("user", "nom email").populate("voyage").populate("hotel");
 
     if (!reservation) return res.status(404).json({ msg: "Réservation non trouvée" });
