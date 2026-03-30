@@ -1,0 +1,128 @@
+.footer {
+  background: linear-gradient(135deg, #1a0505 0%, #2d0000 100%);
+  color: white;
+  padding: 52px 0 0;
+  margin-top: 60px;
+}
+
+/* ── TOP ── */
+.footer-top { padding-bottom: 40px; }
+
+/* ── BRAND ── */
+.footer-logo {
+  height: 55px;
+  object-fit: contain;
+  margin-bottom: 14px;
+  filter: brightness(0) invert(1);
+}
+
+.footer-desc {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── TITRES ── */
+.footer-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #cc0000;
+  margin-bottom: 16px;
+}
+
+/* ── LIENS ── */
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-links li button {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.65);
+  font-size: 0.88rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+  text-align: left;
+}
+
+.footer-links li button:hover { color: white; }
+
+/* ── CONTACT ── */
+.footer-contact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-contact li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: rgba(255,255,255,0.65);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.footer-contact-icon { flex-shrink: 0; font-size: 0.9rem; }
+
+/* ── SOCIALS ── */
+.footer-socials {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-social-btn {
+  display: block;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+
+.footer-social-btn:hover { opacity: 0.85; }
+
+.footer-social-btn.facebook {
+  background: #1877f2;
+  color: white;
+}
+
+.footer-social-btn.whatsapp {
+  background: #25d366;
+  color: white;
+}
+
+/* ── BOTTOM ── */
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 18px 0;
+  text-align: center;
+}
+
+.footer-bottom p {
+  color: rgba(255,255,255,0.4);
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .footer { padding: 40px 0 0; }
+  .footer-socials { flex-direction: row; }
+  .footer-social-btn { flex: 1; }
+}

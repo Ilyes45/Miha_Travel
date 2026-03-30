@@ -19,6 +19,7 @@ import Historique from './Pages/Historique/Historique';
 import Promotions from './Pages/Promotions/Promotions'
 import Search from './Pages/Search/Search';
 import Contact from './Pages/Contact/Contact';
+import Footer from './Components/Footer/Footer';
 function App() {
   const dispatch = useDispatch();
   const { user, isAuth, loadUser } = useSelector((state) => state.userReducer);
@@ -83,6 +84,7 @@ function App() {
 
         <Route path='*' element={<Error />} />
       </Routes>
+      <Footer />
     </div>
   );
 }
