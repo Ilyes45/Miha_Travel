@@ -1,35 +1,36 @@
-import { CURRENT_USER, FAIL_USER, LOAD_USER ,LOGOUT_USER,SUCC_USER,UPDATE_USER,DELETE_USER} from "../ActionsType/user";
+import { CURRENT_USER, FAIL_USER, LOAD_USER, LOGOUT_USER, SUCC_USER, UPDATE_USER, DELETE_USER } from "../ActionsType/user";
 import axios from "axios";
 
 export const register = (newUser) => async (dispatch) => {
-    dispatch({type:LOAD_USER});
+    dispatch({ type: LOAD_USER });
     try {
         let result = await axios.post("/api/user/register", newUser);
-        dispatch({type:SUCC_USER, payload:result.data});
-
-    }catch (error) {
-        dispatch({type:FAIL_USER, payload:error.response});
+        dispatch({ type: SUCC_USER, payload: result.data });
+        return { success: true };
+    } catch (error) {
+        dispatch({ type: FAIL_USER, payload: error.response });
+        return { success: false, payload: error.response?.data };
     }
-    
-}; 
+};
 
 export const login = (user) => async (dispatch) => {
-    dispatch({type:LOAD_USER});
+    dispatch({ type: LOAD_USER });
     try {
         let result = await axios.post("/api/user/login", user);
-        dispatch({type:SUCC_USER, payload:result.data});
-
-    }catch (error) {
-        dispatch({type:FAIL_USER, payload:error.response});
+        dispatch({ type: SUCC_USER, payload: result.data });
+        return { success: true };
+    } catch (error) {
+        dispatch({ type: FAIL_USER, payload: error.response });
+        return { success: false, payload: error.response?.data };
     }
-
 };
+
 export const logout = () => async (dispatch) => {
-    dispatch({type:LOGOUT_USER});
-}
+    dispatch({ type: LOGOUT_USER });
+};
 
 export const current = () => async (dispatch) => {
-    dispatch({type:LOAD_USER});
+    dispatch({ type: LOAD_USER });
     try {
         const config = {
             headers: {
@@ -37,11 +38,13 @@ export const current = () => async (dispatch) => {
             },
         };
         let result = await axios.get("/api/user/current", config);
-        dispatch({type:CURRENT_USER, payload:result.data});
-    }catch (error) {
-        dispatch({type:FAIL_USER, payload:error.response});
+        dispatch({ type: CURRENT_USER, payload: result.data });
+    } catch (error) {
+        // Supprimer le token expiré silencieusement sans dispatcher l'erreur
+        localStorage.removeItem("token");
+        dispatch({ type: LOGOUT_USER });
     }
-}; 
+};
 
 export const updateProfile = (updatedData) => async (dispatch) => {
     dispatch({ type: LOAD_USER });

@@ -136,6 +136,9 @@ const NavBar = () => {
               <Nav.Link href="/hotel"      className="nav-link-custom">Nos Hotels</Nav.Link>
               <Nav.Link href="/promotions" className="nav-link-custom">Offres</Nav.Link>
               <Nav.Link href="/contact"    className="nav-link-custom">Contact</Nav.Link>
+              {isAuth && (
+  <Nav.Link  href="/recommandations">✨ Recommandations</Nav.Link>
+)}
 
               {isAuth && user?.role === "admin" && (
                 <Nav.Link href="/admin" className="nav-link-admin">Admin</Nav.Link>

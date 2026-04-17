@@ -1,69 +1,121 @@
-import React, { useState } from 'react'
-import { Button, Form} from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';  // ✅ ajoute useSelector
 import { register } from '../../JS/Actions/user';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Register.css';
 
-
 const Register = () => {
-  const [newUser, setNewUser] = useState({});
+  const [newUser, setNewUser] = useState({ nom: "", email: "", telephone: "", motDePasse: "" });
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { msg } = useSelector((s) => s.userReducer); // ✅ lit le msg du reducer
 
   const handleChange = (e) => {
-    setNewUser({...newUser,[e.target.name]:e.target.value});
+    setNewUser({ ...newUser, [e.target.name]: e.target.value });
   };
 
-  const handleUser = (e) => {
+  const handleUser = async (e) => {
     e.preventDefault();
-    dispatch(register(newUser));
-    navigate('/profile');
+    setLoading(true);
+    try {
+      const result = await dispatch(register(newUser));
+      if (result.success) {
+        setSuccess("Compte créé avec succès !");
+        setTimeout(() => navigate('/accueil'), 1500);
+        // ✅ reste sur Register si erreur, pas de navigate('/login')
+      }
+    } catch {
+      // géré par le reducer
+    } finally {
+      setLoading(false);
+    }
   };
-
 
   return (
-     <div className="register-container">
-      <h1>Register</h1>
-      <Form>
-        {/* Champ nom */}
-        <Form.Group className="mb-3" >
-          <Form.Label>User Name</Form.Label>
-          <Form.Control type="text" placeholder="Enter username" name="nom" onChange={handleChange} />
-        </Form.Group>
+    <div className="auth-page">
+      <div className="auth-left">
+        <div className="auth-left-overlay" />
+        <div className="auth-left-content">
+          <img src="/logo.png" alt="Miha Travel" className="auth-logo" />
+          <h2>Rejoignez-nous !</h2>
+          <p>Créez votre compte et découvrez des milliers de destinations de rêve avec Miha Travel.</p>
+        </div>
+      </div>
 
-        {/* Champ email */}
-        <Form.Group className="mb-3" >
-          <Form.Label>Email address</Form.Label>
-          <Form.Control type="email" placeholder="Enter email" name="email" onChange={handleChange} />
-        </Form.Group>
+      <div className="auth-right">
+        <div className="auth-form-wrap">
+          <h1 className="auth-title">Créer un compte</h1>
+          <p className="auth-sub">Rejoignez la communauté Miha Travel</p>
 
-        {/* Champ téléphone */}
-        <Form.Group className="mb-3" >
-          <Form.Label>User Phone</Form.Label>
-          <Form.Control type="number" placeholder="Enter phone number" name="telephone" onChange={handleChange} />
-        </Form.Group>
+          {/* ✅ affiche le msg d'erreur du reducer */}
+          {msg && !success && (
+            <div className="auth-alert error">
+              {msg === "Email already exists" ? "Cet email est déjà utilisé." : msg}
+            </div>
+          )}
+          {success && (
+            <div className="auth-alert success">{success}</div>
+          )}
 
-        {/* Champ mot de passe */}
-        <Form.Group className="mb-3" >
-          <Form.Label>Password</Form.Label>
-          <Form.Control type="password" placeholder="motDePasse" name="motDePasse" onChange={handleChange} />
-        </Form.Group>
+          <form onSubmit={handleUser} className="auth-form">
+            <div className="auth-field">
+              <label>Nom complet *</label>
+              <input
+                type="text"
+                name="nom"
+                placeholder="Votre nom"
+                value={newUser.nom}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="auth-field">
+              <label>Email *</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="votre@email.com"
+                value={newUser.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="auth-field">
+              <label>Téléphone</label>
+              <input
+                type="tel"
+                name="telephone"
+                placeholder="+216 XX XXX XXX"
+                value={newUser.telephone}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="auth-field">
+              <label>Mot de passe *</label>
+              <input
+                type="password"
+                name="motDePasse"
+                placeholder="••••••••"
+                value={newUser.motDePasse}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <button type="submit" className="auth-btn" disabled={loading}>
+              {loading ? "Inscription..." : "Créer mon compte"}
+            </button>
+          </form>
 
-        
-
-        {/* Checkbox optionnelle */}
-        <Form.Group className="mb-3" >
-          <Form.Check type="checkbox" label="Check me out" />
-        </Form.Group>
-
-        {/* Bouton submit */}
-        <Button variant="primary" type="submit" onClick={handleUser}>
-          Register
-        </Button>
-      </Form>
+          <p className="auth-switch">
+            Déjà un compte ?{" "}
+            <Link to="/login">Se connecter</Link>
+          </p>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;

@@ -1,39 +1,30 @@
-// 1- require express
 const express = require('express');
-
-// 2- create an express app
+const cors = require('cors');
 const app = express();
 
-// require dotenv
 require('dotenv').config();
 
-//  connectDB
 const connectDB = require('./config/connectDB');
 connectDB();
 
-
-//Routing 
-//middleware global 
-
 app.use(express.json());
+app.use(cors({ origin: "http://localhost:3000" }));
 
-//middleware routes
 app.use('/api/upload', require('./routes/upload'));
-
 app.use('/api/user', require('./routes/user'));
 app.use('/api/destination', require('./routes/destination'));
 app.use('/api/voyage', require('./routes/voyage'));
 app.use('/api/hotel', require('./routes/hotel'));
 app.use('/api/reservation', require('./routes/reservation'));
-
 app.use('/api/promotion', require('./routes/promotion'));
 app.use("/api/notification", require("./routes/notification"));
 app.use("/api/contact", require("./routes/contact"));
 app.use('/api/annonce', require('./routes/annonce'));
-// 3- create PORT
+app.use("/api/chat", require("./routes/chatRoute"));
+app.use("/api/recommendations", require("./routes/recommendation"));
+
 const PORT = process.env.PORT;
 
-// 4 - create server 
 app.listen(PORT, (err) =>
     err ? console.log(err) : console.log(`Server is running on port ${PORT} .. `)
-); 
+);

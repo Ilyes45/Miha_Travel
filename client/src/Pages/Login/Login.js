@@ -1,63 +1,94 @@
-import React, { useState } from 'react'
-import { Button, Form } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';  // ✅ ajoute useSelector
 import { login } from '../../JS/Actions/user';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
 
 const Login = () => {
-  const [user, setUser] = useState({});
+  const [user, setUser]       = useState({ email: "", motDePasse: "" });
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { msg } = useSelector((s) => s.userReducer); // ✅ lit le msg du reducer
 
   const handleChange = (e) => {
-    setUser({...user,[e.target.name]:e.target.value});
+    setUser({ ...user, [e.target.name]: e.target.value });
   };
-const handleUser = (e) => {
-  e.preventDefault();
-  dispatch(login(user));
-  navigate('/profile');
-}
+
+  const handleUser = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const result = await dispatch(login(user));
+      if (result.success) {
+        navigate('/accueil'); // ✅ navigue seulement si succès
+      }
+    } catch {
+      // géré par le reducer
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="login-container">
-<h1>Login</h1>
-        
-      <Form>
-            <Form.Group className="mb-3" >
-              <Form.Label>Email address</Form.Label>
-              <Form.Control 
-                type="email" 
-                placeholder="Enter email" 
-                onChange={handleChange} 
-                name="email" 
-              />
-              <Form.Text className="text-muted">
-                We'll never share your email with anyone else.
-              </Form.Text>
-            </Form.Group>
+    <div className="auth-page">
+      <div className="auth-left">
+        <div className="auth-left-overlay" />
+        <div className="auth-left-content">
+          <img src="/logo.png" alt="Miha Travel" className="auth-logo" />
+          <h2>Bon retour !</h2>
+          <p>Connectez-vous pour accéder à vos réservations et profiter de nos offres exclusives.</p>
+        </div>
+      </div>
 
-            <Form.Group className="mb-3" >
-              <Form.Label>Password</Form.Label>
-              <Form.Control 
-                type="password" 
-                placeholder="Password" 
-                onChange={handleChange} 
-                name="motDePasse" 
-              />
-            </Form.Group>
+      <div className="auth-right">
+        <div className="auth-form-wrap">
+          <h1 className="auth-title">Se connecter</h1>
+          <p className="auth-sub">Accédez à votre espace personnel</p>
 
-            <Button 
-              variant="primary" 
-              type="submit" 
-              onClick={handleUser}
-            >
-              Se Connecter 
-            </Button>
-          </Form>
-     
+          {/* ✅ affiche le msg d'erreur du reducer */}
+          {msg && (
+            <div className="auth-alert error">
+              {msg === "Invalid credentials !!!" ? "Email ou mot de passe incorrect." : msg}
+            </div>
+          )}
+
+          <form onSubmit={handleUser} className="auth-form">
+            <div className="auth-field">
+              <label>Email</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="votre@email.com"
+                value={user.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="auth-field">
+              <label>Mot de passe</label>
+              <input
+                type="password"
+                name="motDePasse"
+                placeholder="••••••••"
+                value={user.motDePasse}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <button type="submit" className="auth-btn" disabled={loading}>
+              {loading ? "Connexion..." : "Se connecter"}
+            </button>
+          </form>
+
+          <p className="auth-switch">
+            Pas encore de compte ?{" "}
+            <Link to="/register">Créer un compte</Link>
+          </p>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

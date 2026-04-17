@@ -1,5 +1,3 @@
-//1 import 
-
 import {
      CURRENT_USER, 
      FAIL_USER,
@@ -10,39 +8,38 @@ import {
     DELETE_USER
 } from "../ActionsType/user";
 
-
-
-
-// 2 initstate 
 const initState = {
     user: null,
     loadUser: !!localStorage.getItem("token"), 
     errors: [],
     isAuth: false,
+    msg: "",  // ✅ ajoute msg ici
 };
-
-
-// 3 pure function
 
 const userReducer = (state = initState, { type, payload }) => {
     switch (type) {
         case LOAD_USER:
-            return { ...state, loadUser: true };
+            return { ...state, loadUser: true, msg: "" }; // ✅ reset msg à chaque requête
         case SUCC_USER:
             localStorage.setItem("token", payload.token);
-            return { ...state, loadUser: false, user: payload.user, isAuth: true };
+            return { ...state, loadUser: false, user: payload.user, isAuth: true, msg: "" };
         case FAIL_USER:
-            return { ...state,loadUser: false , errors: payload };
+            return { 
+                ...state, 
+                loadUser: false, 
+                errors: payload,
+                msg: payload?.data?.msg || payload?.data?.errors?.[0]?.msg || "Erreur"  // ✅ extrait le msg
+            };
         case CURRENT_USER:    
             return { ...state, loadUser: false, user: payload, isAuth: true };
         case UPDATE_USER:
             return { ...state, loadUser: false, user: payload }; 
         case DELETE_USER:
             localStorage.removeItem("token");
-            return { user: null, loadUser: false, errors: [], isAuth: false }; 
+            return { user: null, loadUser: false, errors: [], isAuth: false, msg: "" }; 
         case LOGOUT_USER:
-                localStorage.removeItem("token");
-            return { user: null, loadUser: false, errors: [], isAuth: false };
+            localStorage.removeItem("token");
+            return { user: null, loadUser: false, errors: [], isAuth: false, msg: "" };
         default:
             return state;
     }

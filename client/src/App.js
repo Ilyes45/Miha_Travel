@@ -20,6 +20,10 @@ import Promotions from './Pages/Promotions/Promotions'
 import Search from './Pages/Search/Search';
 import Contact from './Pages/Contact/Contact';
 import Footer from './Components/Footer/Footer';
+import Chatbot from './Components/Chatbot/Chatbot';
+import Recommandations from './Pages/Recommandations/Recommandations';
+
+
 function App() {
   const dispatch = useDispatch();
   const { user, isAuth, loadUser } = useSelector((state) => state.userReducer);
@@ -81,9 +85,18 @@ function App() {
   }
 />
 <Route path='/promotions' element={<Promotions />} />
+<Route
+  path='/recommandations'
+  element={isAuth ? <Recommandations /> : <Navigate to="/login" />}
+/>
 
         <Route path='*' element={<Error />} />
       </Routes>
+      
+
+<Chatbot />
+
+
       <Footer />
     </div>
   );

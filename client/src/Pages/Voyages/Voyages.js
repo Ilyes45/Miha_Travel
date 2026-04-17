@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Container, Row, Col, Spinner } from "react-bootstrap";
+import { Container,  Spinner } from "react-bootstrap";
 import { useSearchParams } from "react-router-dom";
 import { getAllVoyages } from "../../JS/Actions/voyage";
 import VoyageList from "../../Components/VoyageList/VoyageList";
